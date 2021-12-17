@@ -3,7 +3,7 @@ name: "Terraform"
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
 
 jobs:
@@ -45,10 +45,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style í¶Œ\`${{ steps.fmt.outcome }}\`
+            const output = `#### Terraform Format and Style ï¿½ï¿½ï¿½\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization âš™ï¸\`${{ steps.init.outcome }}\`
-            #### Terraform Validation í´–\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan í³–\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation ï¿½ï¿½ï¿½\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan ï¿½ï¿½ï¿½\`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>
             \`\`\`\n
             ${process.env.PLAN}
@@ -66,5 +66,5 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: terraform apply -auto-approve
