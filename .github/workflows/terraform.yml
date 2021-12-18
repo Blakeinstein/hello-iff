@@ -27,8 +27,6 @@ jobs:
         id: fmt
         run: terraform fmt -check
 
-      - run: cd build
-
       - name: Terraform Init
         id: init
         run: terraform init
