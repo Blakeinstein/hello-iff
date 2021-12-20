@@ -23,14 +23,17 @@ jobs:
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check
+        continue-on-error: true
 
       - name: Terraform Init
         id: init
         run: terraform init
+        continue-on-error: true
       
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
+        continue-on-error: true
 
       - name: Terraform Plan
         id: plan
@@ -41,18 +44,37 @@ jobs:
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          PLAN: "terraform\n"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `#### Terraform Format and Style ���\`${{ steps.fmt.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n terraform
+            ${{ steps.fmt.outputs.stdout }}
+            ${{ steps.fmt.outputs.stderr }}
+            \`\`\`\n
+            </details>
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n terraform
+            ${{ steps.init.outputs.stdout }}
+            ${{ steps.init.outputs.stderr }}
+            \`\`\`\n
+            </details>
             #### Terraform Validation ���\`${{ steps.validate.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n terraform
+            ${{ steps.validate.outputs.stdout }}
+            ${{ steps.validate.outputs.stderr }}
+            \`\`\`\n
+            </details>
             #### Terraform Plan ���\`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>
+            \`\`\`\n terraform
+            ${{ steps.plan.outputs.stdout }}
+            ${{ steps.plan.outputs.stderr }}
             \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
             </details>
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
             github.issues.createComment({
@@ -62,7 +84,7 @@ jobs:
               body: output
             })
       - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
+        if: steps.fmt.outcome == 'failure' || steps.init.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure'
         run: exit 1
 
       - name: Terraform Apply
