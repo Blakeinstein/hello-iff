@@ -17,28 +17,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          # terraform_version: 0.13.0:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
       - name: Terraform Format
         id: fmt
-        run: terraform fmt -check
+        uses: hashicorp/terraform-github-actions/fmt@v0.3.7
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        uses: hashicorp/terraform-github-actions/init@v0.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color
+        uses: hashicorp/terraform-github-actions/validate@v0.3.7
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -no-color
+        uses: hashicorp/terraform-github-actions/plan@v0.3.7
         continue-on-error: true
 
       - uses: actions/github-script@0.9.0
@@ -50,8 +48,8 @@ jobs:
           script: |
             const output = `#### Terraform Format and Style ���\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation ���\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan ���\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤔\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 🪶\`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>
             \`\`\`\n
             ${process.env.PLAN}
@@ -64,10 +62,24 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+        uses: hashicorp/terraform-github-actions/apply@v0.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Sync S3
+      uses: jakejarvis/s3-sync-action@master
+      env:
+        SOURCE_DIR: './'
+        AWS_REGION: ${{ secrets.AWS_TF_S3_REGION }}
+        AWS_S3_BUCKET: ${{ secrets.AWS_TF_S3_STATE }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
