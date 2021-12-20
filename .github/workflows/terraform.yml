@@ -49,32 +49,49 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `#### Terraform Format and Style ���\`${{ steps.fmt.outcome }}\`
-            <details><summary>Show Plan</summary>
-            \`\`\`\n terraform
-            ${{ steps.fmt.outputs.stdout }}
-            ${{ steps.fmt.outputs.stderr }}
-            \`\`\`\n
+            <details>
+              <summary>Show Plan</summary>
+              > Output
+            \n\`\`\`
+              ${{ steps.fmt.outputs.stdout }}
+            \n\`\`\`
+              > Error 
+            \n\`\`\`
+              ${{ steps.fmt.outputs.stderr }}
+            \n\`\`\`\n
             </details>
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             <details><summary>Show Plan</summary>
-            \`\`\`\n terraform
+              > Output
+            \n\`\`\`
             ${{ steps.init.outputs.stdout }}
+            \n\`\`\`
+              > Error 
+            \n\`\`\`
             ${{ steps.init.outputs.stderr }}
-            \`\`\`\n
+            \n\`\`\`\n
             </details>
             #### Terraform Validation ���\`${{ steps.validate.outcome }}\`
             <details><summary>Show Plan</summary>
-            \`\`\`\n terraform
+              > Output
+            \n\`\`\`
             ${{ steps.validate.outputs.stdout }}
+            \n\`\`\`
+              > Error 
+            \n\`\`\`
             ${{ steps.validate.outputs.stderr }}
-            \`\`\`\n
+            \n\`\`\`\n
             </details>
             #### Terraform Plan ���\`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>
-            \`\`\`\n terraform
+              > Output
+            \n\`\`\`
             ${{ steps.plan.outputs.stdout }}
+            \n\`\`\`
+              > Error 
+            \n\`\`\`
             ${{ steps.plan.outputs.stderr }}
-            \`\`\`\n
+            \n\`\`\`\n
             </details>
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
             github.issues.createComment({
