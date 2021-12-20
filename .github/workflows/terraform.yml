@@ -10,6 +10,10 @@ jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
+    environment: AWS
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
       run:
         working-directory: ./build
@@ -50,7 +54,7 @@ jobs:
           script: |
             const output = `#### Terraform Format and Style ���\`${{ steps.fmt.outcome }}\`
             <details>
-              <summary>Show Plan</summary>
+              <summary>Show Plan</summary>\n
               > Output
             \n\`\`\`
               ${{ steps.fmt.outputs.stdout }}
@@ -59,9 +63,9 @@ jobs:
             \n\`\`\`
               ${{ steps.fmt.outputs.stderr }}
             \n\`\`\`\n
-            </details>
+            </details>\n
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Plan</summary>\n
               > Output
             \n\`\`\`
             ${{ steps.init.outputs.stdout }}
@@ -70,9 +74,9 @@ jobs:
             \n\`\`\`
             ${{ steps.init.outputs.stderr }}
             \n\`\`\`\n
-            </details>
+            </details>\n
             #### Terraform Validation ���\`${{ steps.validate.outcome }}\`
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Plan</summary>\n
               > Output
             \n\`\`\`
             ${{ steps.validate.outputs.stdout }}
@@ -81,9 +85,9 @@ jobs:
             \n\`\`\`
             ${{ steps.validate.outputs.stderr }}
             \n\`\`\`\n
-            </details>
+            </details>\n
             #### Terraform Plan ���\`${{ steps.plan.outcome }}\`
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Plan</summary>\n
               > Output
             \n\`\`\`
             ${{ steps.plan.outputs.stdout }}
@@ -92,7 +96,7 @@ jobs:
             \n\`\`\`
             ${{ steps.plan.outputs.stderr }}
             \n\`\`\`\n
-            </details>
+            </details>\n
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
             github.issues.createComment({
               issue_number: context.issue.number,
