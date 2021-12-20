@@ -16,13 +16,13 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        uses: hashicorp/terraform-github-actions/fmt@v0.3.7
+        uses: hashicorp/terraform-github-actions/fmt@v0.8.0
         env:
           TF_ACTION_WORKING_DIR: 'build'
 
       - name: Terraform Init
         id: init
-        uses: hashicorp/terraform-github-actions/init@v0.4.0
+        uses: hashicorp/terraform-github-actions/init@v0.8.0
         env:
           TF_ACTION_WORKING_DIR: 'build'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,14 +31,14 @@ jobs:
       
       - name: Terraform Validate
         id: validate
-        uses: hashicorp/terraform-github-actions/validate@v0.3.7
+        uses: hashicorp/terraform-github-actions/validate@v0.8.0
         env:
           TF_ACTION_WORKING_DIR: 'build'
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        uses: hashicorp/terraform-github-actions/plan@v0.3.7
+        uses: hashicorp/terraform-github-actions/plan@v0.8.0
         env:
           TF_ACTION_WORKING_DIR: 'build'
         continue-on-error: true
@@ -73,7 +73,7 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        uses: hashicorp/terraform-github-actions/apply@v0.4.0
+        uses: hashicorp/terraform-github-actions/apply@v0.8.0
         env:
           TF_ACTION_WORKING_DIR: 'build'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
