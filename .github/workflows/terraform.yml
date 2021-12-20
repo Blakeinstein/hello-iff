@@ -10,9 +10,6 @@ jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./build
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -20,11 +17,14 @@ jobs:
       - name: Terraform Format
         id: fmt
         uses: hashicorp/terraform-github-actions/fmt@v0.3.7
+        env:
+          TF_ACTION_WORKING_DIR: 'build'
 
       - name: Terraform Init
         id: init
         uses: hashicorp/terraform-github-actions/init@v0.4.0
         env:
+          TF_ACTION_WORKING_DIR: 'build'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -32,11 +32,15 @@ jobs:
       - name: Terraform Validate
         id: validate
         uses: hashicorp/terraform-github-actions/validate@v0.3.7
+        env:
+          TF_ACTION_WORKING_DIR: 'build'
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
         uses: hashicorp/terraform-github-actions/plan@v0.3.7
+        env:
+          TF_ACTION_WORKING_DIR: 'build'
         continue-on-error: true
 
       - uses: actions/github-script@0.9.0
@@ -53,7 +57,7 @@ jobs:
             <details><summary>Show Plan</summary>
             \`\`\`\n
             ${process.env.PLAN}
-            \`\`\`
+            \`\`\`\n
             </details>
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
             github.issues.createComment({
@@ -71,6 +75,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         uses: hashicorp/terraform-github-actions/apply@v0.4.0
         env:
+          TF_ACTION_WORKING_DIR: 'build'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -78,7 +83,7 @@ jobs:
       - name: Sync S3
         uses: jakejarvis/s3-sync-action@master
         env:
-          SOURCE_DIR: './'
+          SOURCE_DIR: './build'
           AWS_REGION: ${{ secrets.AWS_TF_S3_REGION }}
           AWS_S3_BUCKET: ${{ secrets.AWS_TF_S3_STATE }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
